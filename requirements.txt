@@ -1,7 +1,7 @@
-streamlit==1.25.0        # 최신 streamlit 버전
-mediapipe==0.10.13       # 호환 가능한 mediapipe 버전 중 하나
+streamlit==1.25.0        # 최신 streamlit 버전과 호환
+mediapipe==0.10.13       # Streamlit과 호환 가능한 mediapipe 버전
 opencv-python-headless==4.5.5.62
 numpy==1.26.0            # 최신 numpy 버전
 pyttsx3==2.90
-pillow==10.0.0
-dataclasses
+pillow==9.5.0            # Streamlit이 요구하는 pillow 버전 (10.0.0과 호환성 문제 해결)
+dataclasses              # Python 3.6 이하에서 필요 (3.7 이상에서는 기본 포함)
