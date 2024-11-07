@@ -3,4 +3,5 @@ mediapipe==0.10.13       # 호환 가능한 mediapipe 버전 중 하나
 opencv-python-headless==4.5.5.62
 numpy==1.26.0            # 최신 numpy 버전
 pyttsx3==2.90
+pillow==10.0.0
 dataclasses
