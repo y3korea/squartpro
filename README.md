@@ -22,3 +22,37 @@ AI SmartSquat Pro is an advanced squat analysis and feedback system built using 
    ```bash
    git clone https://github.com/y3korea/squartpro.git
    cd squartpro
+
+Requirements
+
+	•	Python 3.7 or higher
+	•	Webcam for video feed
+	•	Speakers or headphones for voice feedback
+
+Usage
+
+	•	Start Calibration: Begin by performing 5 squats to set your baseline.
+	•	Camera Check: Verify your camera feed is working.
+	•	Start Workout: Begin the workout, and the application will monitor your squat form.
+	•	Stop: End the workout session and release resources.
+
+File Structure
+
+	•	app.py: Main application code with Streamlit setup.
+	•	requirements.txt: List of dependencies for the project.
+	•	README.md: Project documentation.
+
+Dependencies
+
+	•	streamlit: For building the web application interface.
+	•	mediapipe: For pose detection and skeletal tracking.
+	•	opencv-python-headless: For image processing.
+	•	numpy: For mathematical operations.
+	•	pyttsx3: For text-to-speech feedback.
+	•	dataclasses: For structured data representation (Python 3.7+).
+
+Future Enhancements
+
+	•	Adding rep counting accuracy improvements
+	•	Incorporating additional exercise support
+	•	Enhancing the feedback algorithm for detailed correction suggestions
