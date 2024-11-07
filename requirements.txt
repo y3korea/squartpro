@@ -1,6 +1,6 @@
-streamlit==1.25.0  # streamlit 최신 버전으로 업데이트
-mediapipe==0.10.15  # 호환 가능성이 높은 mediapipe 버전
+streamlit==1.25.0        # 최신 streamlit 버전
+mediapipe==0.10.13       # 호환 가능한 mediapipe 버전 중 하나
 opencv-python-headless==4.5.5.62
-numpy==1.26.0  # 최신 numpy 버전으로 업데이트
+numpy==1.26.0            # 최신 numpy 버전
+pyttsx3==2.90
 dataclasses
-protobuf==4.23.4  # mediapipe와 streamlit 간 충돌을 피하기 위해 하위 protobuf 버전 추가
