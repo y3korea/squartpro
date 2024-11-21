@@ -1,0 +1,109 @@
+
+1. 프로젝트 구조
+ai_squat_pro/
+├── app/
+│   ├── __init__.py
+│   ├── analyzer.py       # SquatAnalysisEngine 클래스
+│   ├── visualizer.py     # PerformanceVisualizer 클래스
+│   ├── data_manager.py   # SquatDataManager 클래스
+│   └── utils.py         # 유틸리티 함수들
+├── data/
+│   ├── sessions/        # 세션 데이터 저장
+│   └── analytics/       # 분석 데이터 저장
+├── assets/
+│   └── style.css       # 스타일시트
+├── config/
+│   └── standards.json   # 스쿼트 기준값
+├── requirements.txt     # 필요한 라이브러리
+└── main.py             # 메인 실행 파일
+
+
+2. requirements.txt 내용:
+streamlit==1.24.0
+opencv-python==4.8.0
+mediapipe==0.10.0
+numpy==1.24.3
+pandas==2.0.3
+plotly==5.15.0
+
+
+3. 실행을 위한 설정:
+
+# 가상환경 생성 및 활성화
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# 필요한 라이브러리 설치
+pip install -r requirements.txt
+
+# 실행
+streamlit run main.py
+
+
+4. styles.css 파일:
+
+/* assets/style.css */
+.stButton>button {
+    width: 100%;
+    border-radius: 20px;
+    height: 3em;
+    background-color: #4CAF50;
+    color: white;
+}
+
+.metric-container {
+    background-color: #f0f2f6;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 10px 0;
+}
+
+.chart-container {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+}
+
+.success-text {
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.warning-text {
+    color: #ff9800;
+    font-weight: bold;
+}
+
+.error-text {
+    color: #f44336;
+    font-weight: bold;
+}
+
+
+5. 실행 시 주의사항:
+
+"""
+실행 전 체크리스트:
+
+1. 카메라 연결 확인:
+   - 웹캠이 연결되어 있는지 확인
+   - 카메라 권한 설정 확인
+
+2. 환경 설정:
+   - Python 3.8 이상 설치
+   - 가상환경 활성화
+   - 모든 의존성 패키지 설치
+
+3. 폴더 구조:
+   - 필요한 모든 폴더가 생성되어 있는지 확인
+   - 권한 설정 확인
+
+4. 실행 명령어:
+   streamlit run main.py
+
+5. 문제 해결:
+   - 카메라 에러: cv2.VideoCapture(0) 대신 다른 카메라 인덱스 시도
+   - 메모리 에러: 해상도 낮추기
+   - 성능 이슈: fps 조정
+"""

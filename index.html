@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI SmartSquat Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .button {
+            padding: 15px 30px;
+            font-size: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            max-width: 90%;
+        }
+        #videoFeed {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .close-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .close-button:hover {
+            background-color: #e03127;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI SmartSquat Pro 🏋️</h1>
+    <button class="button" onclick="startCamera()">Start Camera</button>
+    
+    <div id="cameraPopup" class="popup">
+        <img id="videoFeed" src="video_feed.html" alt="Camera Feed">
+        <p>Reps: <span id="repCount">0</span></p>
+        <p>Phase: <span id="phase">STANDING</span></p>
+        <button class="close-button" onclick="closeCamera()">Close Camera</button>
+    </div>
+
+    <script>
+        function startCamera() {
+            document.getElementById('cameraPopup').style.display = 'block';
+            console.log('Camera feed started');
+            updateStats();
+        }
+
+        function closeCamera() {
+            document.getElementById('cameraPopup').style.display = 'none';
+            console.log('Camera feed stopped');
+        }
+
+        function updateStats() {
+            setInterval(() => {
+                fetch('get_stats.json')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('repCount').textContent = data.rep_count;
+                        document.getElementById('phase').textContent = data.phase;
+                    })
+                    .catch(error => console.error('Error fetching stats:', error));
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
+
+# --- Python 코드: 윈도우 창을 통해 사람의 관절을 실시간으로 인식하고 관절을 점과 선으로 연결하는 기능 ---
+
+import cv2
+import mediapipe as mp
+import pyttsx3
+import threading
+
+class PoseDetector:
+    def __init__(self):
+        self.mp_pose = mp.solutions.pose
+        self.pose = self.mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
+        self.mp_drawing = mp.solutions.drawing_utils
+        self.rep_count = 0
+        self.current_phase = "STANDING"
+        self.last_y = None
+        self.going_down = False
+        self.voice_feedback = VoiceFeedback()
+
+    def detect_pose(self, frame):
+        # BGR을 RGB로 변환
+        image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        results = self.pose.process(image)
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+        if results.pose_landmarks:
+            self.mp_drawing.draw_landmarks(
+                image, results.pose_landmarks, self.mp_pose.POSE_CONNECTIONS,
+                self.mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=2, circle_radius=4),
+                self.mp_drawing.DrawingSpec(color=(255, 0, 0), thickness=2, circle_radius=2)
+            )
+            self._analyze_squat(results.pose_landmarks)
+
+        return image
+
+    def _analyze_squat(self, landmarks):
+        hip = landmarks.landmark[self.mp_pose.PoseLandmark.LEFT_HIP]
+        
+        if self.last_y is None:
+            self.last_y = hip.y
+            return
+
+        if hip.y > self.last_y + 0.02:  # 내려가는 중
+            self.going_down = True
+            self.current_phase = "SQUAT_DOWN"
+            self.voice_feedback.speak("Keep going down")
+        elif hip.y < self.last_y - 0.02:  # 올라가는 중
+            if self.going_down:  # 내려갔다가 올라오는 경우
+                self.rep_count += 1
+                self.going_down = False
+                self.voice_feedback.speak(f"Good job! Rep {self.rep_count}")
+            self.current_phase = "SQUAT_UP"
+        else:
+            self.current_phase = "STANDING"
+            self.voice_feedback.speak("Stand still")
+
+        self.last_y = hip.y
+
+class VoiceFeedback:
+    """실시간 음성 피드백 시스템"""
+    def __init__(self):
+        try:
+            self.engine = pyttsx3.init()
+            voices = self.engine.getProperty('voices')
+            if voices:
+                self.engine.setProperty('voice', voices[0].id)
+            self.engine.setProperty('rate', 150)    # 속도 설정
+            self.engine.setProperty('volume', 0.9)  # 볼륨 설정
+        except Exception as e:
+            print(f"Failed to initialize voice engine: {str(e)}")
+            self.engine = None
+        
+        self.speaking_thread = None
+        self.last_feedback = ""
+        
+    def speak(self, text: str):
+        """비동기 음성 출력"""
+        if not self.engine:
+            return
+            
+        if text == self.last_feedback:  # 같은 피드백 반복 방지
+            return
+            
+        self.last_feedback = text
+        
+        def speak_worker():
+            try:
+                self.engine.say(text)
+                self.engine.runAndWait()
+            except Exception as e:
+                print(f"Voice feedback error: {str(e)}")
+        
+        try:
+            if self.speaking_thread and self.speaking_thread.is_alive():
+                if hasattr(self.engine, 'stop'):
+                    self.engine.stop()
+                self.speaking_thread.join(timeout=1.0)
+            
+            self.speaking_thread = threading.Thread(target=speak_worker)
+            self.speaking_thread.start()
+        except Exception as e:
+            print(f"Thread error: {str(e)}")
+
+    def cleanup(self):
+        """음성 엔진 정리"""
+        try:
+            if self.speaking_thread and self.speaking_thread.is_alive():
+                if hasattr(self.engine, 'stop'):
+                    self.engine.stop()
+                self.speaking_thread.join(timeout=1.0)
+            if self.engine:
+                self.engine.stop()
+        except Exception as e:
+            print(f"Cleanup error: {str(e)}")
+
+if __name__ == '__main__':
+    cap = cv2.VideoCapture(0)
+    detector = PoseDetector()
+
+    try:
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            frame = detector.detect_pose(frame)
+            cv2.imshow('AI SmartSquat Pro', frame)
+
+            # ESC 키로 종료
+            if cv2.waitKey(10) & 0xFF == 27:
+                break
+    finally:
+        cap.release()
+        cv2.destroyAllWindows()
+        detector.voice_feedback.cleanup()
+
+# --- 위 Python 코드는 윈도우 창을 통해 실시간으로 관절을 인식하고 연결하는 데 사용됩니다. ---

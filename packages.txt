@@ -1,0 +1,7 @@
+python3-opencv
+libgl1
+zlib1g-dev
+python3-dev
+gcc
+libjpeg-dev
+libpng-dev
